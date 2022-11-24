@@ -28,6 +28,14 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+        <receiver
+            android:name=".receiver.ConnectivityReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

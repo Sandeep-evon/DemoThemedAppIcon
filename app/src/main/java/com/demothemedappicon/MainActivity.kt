@@ -9,6 +9,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.demothemedappicon.databinding.ActivityMainBinding
+import com.demothemedappicon.receiver.ConnectivityReceiver
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
@@ -17,7 +20,7 @@ import com.google.mlkit.nl.translate.TranslatorOptions
 
 
 
-class MainActivity : AppCompatActivity(),OnItemSelectedListener {
+class MainActivity : AppCompatActivity(),OnItemSelectedListener, ConnectivityReceiver.ConnectivityReceiverListener {
     private lateinit var binding: ActivityMainBinding
     private  var countryFrom= arrayListOf<String>("English")
     private lateinit var countryName: Array<String>
@@ -26,7 +29,7 @@ class MainActivity : AppCompatActivity(),OnItemSelectedListener {
     private lateinit var to:String
     private var translator: Translator? = null
     private var flag:Boolean = false
-
+    private var snackBar: Snackbar? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this,R.layout.activity_main)
@@ -73,7 +76,15 @@ class MainActivity : AppCompatActivity(),OnItemSelectedListener {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        ConnectivityReceiver.connectivityReceiverListener = this
+    }
 
+    override fun onPause() {
+        super.onPause()
+        ConnectivityReceiver.connectivityReceiverListener = null
+    }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         if(parent?.id==binding.spinnerLanguageFrom.id){
@@ -85,6 +96,16 @@ class MainActivity : AppCompatActivity(),OnItemSelectedListener {
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
 
+    }
+
+    override fun onNetworkConnectionChanged(isConnected: Boolean) {
+        if (!isConnected) {
+            snackBar = Snackbar.make(findViewById(R.id.rootLayout), "You are offline", Snackbar.LENGTH_LONG) //Assume "rootLayout" as the root layout of every activity.
+            snackBar?.duration = BaseTransientBottomBar.LENGTH_INDEFINITE
+            snackBar?.show()
+        } else {
+            snackBar?.dismiss()
+        }
     }
 
 }
